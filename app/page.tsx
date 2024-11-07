@@ -53,16 +53,11 @@ const Home: React.FC = () => {
         <div className="mx-auto flex items-center gap-4">
           <h1 className="text-3xl font-semibold tracking-tight">Route Visualizer</h1>
 
-          <select
+          <input
             className="rounded bg-clear p-2 dark:bg-black"
             onChange={(e) => setActiveRoute(e.target.value)}
             value={activeRoute || ""}>
-            {Object.keys(routes).map((key) => (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            ))}
-          </select>
+          </input>
 
           <button
             className="border-gray-500 rounded p-2"
