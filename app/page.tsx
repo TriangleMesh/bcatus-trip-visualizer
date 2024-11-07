@@ -10,6 +10,8 @@ import { fetchRoutes, updateMapRegion, updateChartData, updateStats } from "./ut
 import "./globals.css";
 import "./raster.js";
 
+
+
 interface Route {
   [key: string]: Array<Array<[number, number, string]>>;
 }
@@ -30,6 +32,11 @@ const Home: React.FC = () => {
   useEffect(() => {
     setIsClient(true);
     // fetchRoutes(setRoutes, setActiveRoute);
+
+    const pathname = window.location.href;
+    const routeParam = pathname.split('?').pop(); // Split and get the last segment
+    setActiveRoute(routeParam||'');
+
   }, []);
 
   useEffect(() => {
@@ -59,14 +66,6 @@ const Home: React.FC = () => {
       <header className="p-4 text-xl">
         <div className="mx-auto flex items-center gap-4">
           <h1 className="text-3xl font-semibold tracking-tight">Route Visualizer</h1>
-
-          <input
-            className="rounded bg-clear p-2 dark:bg-black"
-            onChange={(e) => setActiveRoute(e.target.value)}
-            value={activeRoute || ""}>
-          </input>
-
-
 
           <label className="flex items-center space-x-2">
             <input type="checkbox" checked={showClusters} onChange={() => setShowClusters(!showClusters)} />
