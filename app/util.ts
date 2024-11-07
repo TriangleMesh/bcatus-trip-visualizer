@@ -1,9 +1,20 @@
-export const fetchRoutes = async (setRoutes: any, setActiveRoute: any) => {
+export const fetchRoutes = async (route: string, setRoutes: any) => {
   try {
-    const response = await fetch("/routes.json");
+
+    const url = process.env.NEXT_PUBLIC_API_URL||'';
+
+    const pattern = /^[a-z]{4}-[a-z]{3}-[a-z]{2}$/;
+    if(!pattern.test(route)){
+      const dummy:any={};
+      dummy[route]=[];
+      setRoutes(dummy);
+      return;
+    }
+
+    const response = await fetch(`${url}/routes/${route}/routes.json`);
     const data = await response.json();
     setRoutes(data);
-    setActiveRoute(Object.keys(data)[0]);
+    // setActiveRoute(Object.keys(data)[0]);
   } catch (error) {
     console.error("Error fetching routes:", error);
   }

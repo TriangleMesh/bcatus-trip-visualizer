@@ -29,11 +29,18 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setIsClient(true);
-    fetchRoutes(setRoutes, setActiveRoute);
+    // fetchRoutes(setRoutes, setActiveRoute);
   }, []);
 
   useEffect(() => {
+    if (activeRoute ) {
+      fetchRoutes(activeRoute, setRoutes);
+    }
+  }, [activeRoute]);
+
+  useEffect(() => {
     if (activeRoute && routes) {
+      //fetchRoutes(setRoutes, setActiveRoute);
       updateMapRegion(activeRoute, routes, setMapRegion);
       updateChartData(activeRoute, routes, setChartData);
       updateStats(activeRoute, routes, setStats);
@@ -59,29 +66,7 @@ const Home: React.FC = () => {
             value={activeRoute || ""}>
           </input>
 
-          <button
-            className="border-gray-500 rounded p-2"
-            onClick={() =>
-              setActiveRoute(
-                (current) =>
-                  Object.keys(routes)[
-                    (Object.keys(routes).indexOf(current as string) - 1 + Object.keys(routes).length) %
-                      Object.keys(routes).length
-                  ]
-              )
-            }>
-            &larr;
-          </button>
-          <button
-            className="border-gray-500 rounded p-2"
-            onClick={() =>
-              setActiveRoute(
-                (current) =>
-                  Object.keys(routes)[(Object.keys(routes).indexOf(current as string) + 1) % Object.keys(routes).length]
-              )
-            }>
-            &rarr;
-          </button>
+
 
           <label className="flex items-center space-x-2">
             <input type="checkbox" checked={showClusters} onChange={() => setShowClusters(!showClusters)} />

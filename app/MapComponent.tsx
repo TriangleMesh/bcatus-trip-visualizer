@@ -63,7 +63,7 @@ const getIconForMode = (mode: TravelMode): JSX.Element => {
   if (modeLowerCase.includes('motorcycle')) return <FaMotorcycle className="text-gray-500 dark:text-gray-200" />;
   if (modeLowerCase.includes('e-scooter')) return <MdOutlineElectricScooter className="text-gray-500 dark:text-gray-200" />;
   if (modeLowerCase.includes('school bus')) return <FaSchool className="text-gray-500 dark:text-gray-200" />;
-  
+
   return <FaQuestion className="text-gray-500 dark:text-gray-200" />; // Default case
 };
 
@@ -95,9 +95,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((point1.latitude * Math.PI) / 180) *
-        Math.cos((point2.latitude * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((point2.latitude * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }, []);
@@ -185,13 +185,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
     [findClusters, calculateCentroid, calculateRadius]
   );
 
-  const clusters = useMemo(() => calculateClusters(routes[activeRoute]), [routes, activeRoute, calculateClusters]);
+  const clusters = useMemo(() => {
+    return routes && routes[activeRoute] ? calculateClusters(routes[activeRoute]) : null;
+  }, [routes, activeRoute, calculateClusters]);
   const startClusters = useMemo(
-    () => calculateStartPointClusters(routes[activeRoute]),
+    () => {
+      return routes && routes[activeRoute] ? calculateStartPointClusters(routes[activeRoute]) : null;
+    },
     [routes, activeRoute, calculateStartPointClusters]
   );
   const endClusters = useMemo(
-    () => calculateEndPointClusters(routes[activeRoute]),
+    () => {
+      return routes && routes[activeRoute] ? calculateEndPointClusters(routes[activeRoute]) : null
+
+    },
     [routes, activeRoute, calculateEndPointClusters]
   );
 
@@ -226,14 +233,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
       colorScheme={2}
       distances={0}
       showsPointsOfInterest
-      token={process.env.NEXT_PUBLIC_MAPKIT_TOKEN||''}
+      token={process.env.NEXT_PUBLIC_MAPKIT_TOKEN || ''}
       cameraBoundary={mapRegion}
       initialRegion={mapRegion}
       onClick={handleMapClick}
       onRegionChangeStart={handleRegionChange}
       onRegionChangeEnd={handleRegionChange}
     >
-      {showClusters &&
+      {showClusters && clusters &&
         clusters.map((region: { center: any; radius: number }, index: React.Key | null | undefined) => (
           <Polygon
             key={index}
@@ -246,7 +253,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             enabled
           />
         ))}
-      {showClusters &&
+      {showClusters && startClusters &&
         startClusters.map((region: { center: any; radius: number }, index: React.Key | null | undefined) => (
           <Polygon
             key={index}
@@ -259,7 +266,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             enabled
           />
         ))}
-      {showClusters &&
+      {showClusters && endClusters &&
         endClusters.map((region: { center: any; radius: number }, index: React.Key | null | undefined) => (
           <Polygon
             key={index}
@@ -272,61 +279,63 @@ const MapComponent: React.FC<MapComponentProps> = ({
             enabled
           />
         ))}
-      {routes[activeRoute].map((trip: any, index: number) => (
-        <React.Fragment key={index}>
-          <Polyline
-            points={trip.coordinates.map(([latitude, longitude]: [number, number]) => ({ latitude, longitude }))}
-            strokeColor={selectedRouteIndex === index ? "#F1A31D" : "#2564EBBB"}
-            lineWidth={selectedRouteIndex === index ? 4 : 2}
-            onSelect={() => handlePolylineClick(index)}
-            onDeselect={handleMapClick}
-          />
-          {showMarkers && (
-            <React.Fragment>
-              <Marker
-                latitude={trip.coordinates[0][0]}
-                longitude={trip.coordinates[0][1]}
-                color={"#F59E0B"}
-                clusteringIdentifier="startMarkers"
-                title={`Start #${index + 1}`}
-                onSelect={() => handlePolylineClick(index)}
-                onDeselect={handleMapClick}
-                calloutContent={renderCalloutContent("Start", index, trip.coordinates[0][0], trip.coordinates[0][1])}
-              />
-              <Marker
-                latitude={trip.coordinates[trip.coordinates.length - 1][0]}
-                longitude={trip.coordinates[trip.coordinates.length - 1][1]}
-                clusteringIdentifier="endMarkers"
-                color="#EF4444"
-                title={`End #${index + 1}`}
-                onSelect={() => handlePolylineClick(index)}
-                onDeselect={handleMapClick}
-                calloutContent={renderCalloutContent(
-                  "End",
-                  index,
-                  trip.coordinates[trip.coordinates.length - 1][0],
-                  trip.coordinates[trip.coordinates.length - 1][1]
-                )}
-              />
-              {trip.mode_of_travel && (
-                <Annotation
-                  latitude={trip.coordinates[Math.floor(trip.coordinates.length / 2)][0]}
-                  longitude={trip.coordinates[Math.floor(trip.coordinates.length / 2)][1]}
-                  title={trip.mode_of_travel}
+      {
+        routes && routes[activeRoute] &&
+        routes[activeRoute].map((trip: any, index: number) => (
+          <React.Fragment key={index}>
+            <Polyline
+              points={trip.coordinates.map(([latitude, longitude]: [number, number]) => ({ latitude, longitude }))}
+              strokeColor={selectedRouteIndex === index ? "#F1A31D" : "#2564EBBB"}
+              lineWidth={selectedRouteIndex === index ? 4 : 2}
+              onSelect={() => handlePolylineClick(index)}
+              onDeselect={handleMapClick}
+            />
+            {showMarkers && (
+              <React.Fragment>
+                <Marker
+                  latitude={trip.coordinates[0][0]}
+                  longitude={trip.coordinates[0][1]}
+                  color={"#F59E0B"}
+                  clusteringIdentifier="startMarkers"
+                  title={`Start #${index + 1}`}
                   onSelect={() => handlePolylineClick(index)}
                   onDeselect={handleMapClick}
-                >
-                  <div
-                    className="flex items-center justify-center bg-white dark:bg-gray-600 
+                  calloutContent={renderCalloutContent("Start", index, trip.coordinates[0][0], trip.coordinates[0][1])}
+                />
+                <Marker
+                  latitude={trip.coordinates[trip.coordinates.length - 1][0]}
+                  longitude={trip.coordinates[trip.coordinates.length - 1][1]}
+                  clusteringIdentifier="endMarkers"
+                  color="#EF4444"
+                  title={`End #${index + 1}`}
+                  onSelect={() => handlePolylineClick(index)}
+                  onDeselect={handleMapClick}
+                  calloutContent={renderCalloutContent(
+                    "End",
+                    index,
+                    trip.coordinates[trip.coordinates.length - 1][0],
+                    trip.coordinates[trip.coordinates.length - 1][1]
+                  )}
+                />
+                {trip.mode_of_travel && (
+                  <Annotation
+                    latitude={trip.coordinates[Math.floor(trip.coordinates.length / 2)][0]}
+                    longitude={trip.coordinates[Math.floor(trip.coordinates.length / 2)][1]}
+                    title={trip.mode_of_travel}
+                    onSelect={() => handlePolylineClick(index)}
+                    onDeselect={handleMapClick}
+                  >
+                    <div
+                      className="flex items-center justify-center bg-white dark:bg-gray-600 
                   rounded-full px-4 py-1 border-2 border-gray-500 dark:border-gray-300">
-                    {getIconForMode(trip.mode_of_travel as TravelMode)}
-                  </div>
-                </Annotation>
-              )}
-            </React.Fragment>
-          )}
-        </React.Fragment>
-      ))}
+                      {getIconForMode(trip.mode_of_travel as TravelMode)}
+                    </div>
+                  </Annotation>
+                )}
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        ))}
     </Map>
   );
 };

@@ -1,5 +1,6 @@
 export const geocode = async (latitude: number, longitude: number): Promise<string> => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY||'';
+  const url = process.env.NEXT_PUBLIC_API_URL||'';
 
   if (!apiKey) {
     console.error("Google Maps API key is not defined.");
@@ -8,7 +9,7 @@ export const geocode = async (latitude: number, longitude: number): Promise<stri
 
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+      `${url}/geocode/json/?latlng=${latitude},${longitude}&key=${apiKey}`
     );
     const data = await response.json();
 
