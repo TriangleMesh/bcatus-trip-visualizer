@@ -1,11 +1,11 @@
-import csv 
+import csv
 import json
 from datetime import datetime
 
-def csv_to_json (csv_file_path, json_file_path):
+def csv_to_json(csv_file_path, json_file_path):
     data_dict = {}
 
-    with open (csv_file_path, encoding = 'utf-8') as csv_file_handler:
+    with open(csv_file_path, encoding='utf-8') as csv_file_handler:
         csv_reader = csv.DictReader(csv_file_handler)
         for rows in csv_reader:
             access_code = rows['accessCode']
@@ -27,10 +27,9 @@ def csv_to_json (csv_file_path, json_file_path):
                             ]
                             for point in trip.get('route', [])
                         ]
-                        convert_timestamp(coordinates)
                         purpose_of_travel = trip.get('purposeOfTravel', '')
                         mode_of_travel = trip.get('modeOfTravel', '')
-                        
+
                         output_value.append({
                             'coordinates': coordinates,
                             'purpose_of_travel': purpose_of_travel,
@@ -45,9 +44,15 @@ def csv_to_json (csv_file_path, json_file_path):
                         'mode_of_travel': 'None',
                         'identifier': 'Unknown'
                     })
-            data_dict[access_code] = output_value    
-    with open (json_file_path, 'w', encoding = 'utf-8') as json_file_handler:
-        json_file_handler.write(json.dumps(data_dict, indent = 4))
+            
+            # Append to existing access_code entry if it exists, otherwise create a new list
+            if access_code in data_dict:
+                data_dict[access_code].extend(output_value)
+            else:
+                data_dict[access_code] = output_value
+
+    with open(json_file_path, 'w', encoding='utf-8') as json_file_handler:
+        json_file_handler.write(json.dumps(data_dict, indent=4))
 
 
 def convert_timestamp(timestamp):
@@ -56,6 +61,6 @@ def convert_timestamp(timestamp):
     return timestamp
 
 
-csv_file_path = "app_data.csv"
-json_file_path = "routes.json"
+csv_file_path = "raw/app_data.csv"
+json_file_path = "output_json/app_data.json"
 csv_to_json(csv_file_path, json_file_path)
