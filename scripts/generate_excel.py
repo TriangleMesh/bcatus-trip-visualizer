@@ -1,5 +1,12 @@
+from datetime import datetime
 import json
 import pandas as pd
+
+def get_weekday(date_part):
+    try:
+        return datetime.strptime(date_part, "%Y-%m-%d").strftime("%A")
+    except:
+        return None
 
 def json_to_excel(json_file_path, excel_file_path):
     # Load the JSON data
@@ -22,11 +29,13 @@ def json_to_excel(json_file_path, excel_file_path):
                 # Split full_date into date and time if it's not None
                 if full_date:
                     date_part, time_part = full_date.split('T')
+                    weekday = get_weekday(date_part)
                 else:
-                    date_part, time_part = None, None
+                    date_part, time_part, weekday = None, None, None
                 
                 rows.append({
                     'accessCode': access_code,
+                    'weekday': weekday,
                     'date': date_part,
                     'time': time_part,
                     'purpose_of_travel': purpose_of_travel,
@@ -41,8 +50,8 @@ def json_to_excel(json_file_path, excel_file_path):
     df.to_excel(excel_file_path, index=False)
 
 # Define file paths
-json_file_path = "output_json/app_data_cezy-cdy-ic.json"  # Replace with your JSON file path
-excel_file_path = "output_excel/app_data_cezy-cdy-ic_new.xlsx"  # Replace with your desired output Excel file path
+json_file_path = "output_json/app_data.json"  # Replace with your JSON file path
+excel_file_path = "output_excel/app_data.xlsx"  # Replace with your desired output Excel file path
 
 # Convert JSON to Excel
 json_to_excel(json_file_path, excel_file_path)
