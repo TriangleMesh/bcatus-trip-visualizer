@@ -1,6 +1,10 @@
 import csv
 import json
 from datetime import datetime
+import sys
+
+
+csv.field_size_limit(sys.maxsize)
 
 def csv_to_json(csv_file_path, json_file_path):
     data_dict = {}
