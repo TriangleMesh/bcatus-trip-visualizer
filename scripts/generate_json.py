@@ -1,7 +1,8 @@
 import csv
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 import sys
+import pytz
 
 
 csv.field_size_limit(sys.maxsize)
@@ -61,10 +62,13 @@ def csv_to_json(csv_file_path, json_file_path):
 
 def convert_timestamp(timestamp):
     if isinstance(timestamp, int):
-        return datetime.fromtimestamp(timestamp / 1000).isoformat()
+        utc_dt = datetime.fromtimestamp(timestamp / 1000, UTC)
+        pt_tz = pytz.timezone('America/Vancouver')
+        pt_dt = utc_dt.astimezone(pt_tz)
+        return pt_dt.isoformat()
     return timestamp
 
 
-csv_file_path = "raw/app_data.csv"
-json_file_path = "output_json/app_data.json"
+csv_file_path = "raw/app_data_1126.csv"
+json_file_path = "output_json/app_data_1126_2.json"
 csv_to_json(csv_file_path, json_file_path)
