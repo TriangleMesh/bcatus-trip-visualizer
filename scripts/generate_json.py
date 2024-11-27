@@ -69,6 +69,6 @@ def convert_timestamp(timestamp):
     return timestamp
 
 
-csv_file_path = "raw/app_data_1126.csv"
-json_file_path = "output_json/app_data_1126_2.json"
+csv_file_path = "raw/app_data.csv"
+json_file_path = "output_json/app_data.json"
 csv_to_json(csv_file_path, json_file_path)
