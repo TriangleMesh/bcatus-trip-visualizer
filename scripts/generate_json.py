@@ -3,6 +3,7 @@ import json
 from datetime import datetime, UTC
 import sys
 import pytz
+import pandas as pd
 
 
 csv.field_size_limit(sys.maxsize)
@@ -60,13 +61,22 @@ def csv_to_json(csv_file_path, json_file_path):
         json_file_handler.write(json.dumps(data_dict, indent=4))
 
 
-def convert_timestamp(timestamp):
-    if isinstance(timestamp, int):
-        utc_dt = datetime.fromtimestamp(timestamp / 1000, UTC)
-        pt_tz = pytz.timezone('America/Vancouver')
-        pt_dt = utc_dt.astimezone(pt_tz)
-        return pt_dt.isoformat()
-    return timestamp
+def convert_timestamp(ts):
+    try:
+        # Define the Vancouver timezone
+        vancouver_tz = pytz.timezone('America/Vancouver')
+        if ts > 1e10:  # Millisecond-level timestamp
+            dt = pd.to_datetime(ts, unit='ms')
+        else:  # Second-level timestamp
+            dt = pd.to_datetime(ts, unit='s')  
+        # Convert UTC time to Vancouver timezone
+        dt_vancouver = dt.tz_localize('UTC').tz_convert(vancouver_tz)
+        # Return the time as an ISO-formatted string
+        return dt_vancouver.isoformat()
+    except Exception as e:
+        print(f"Error converting timestamp {ts}: {e}")
+        return None
+
 
 
 csv_file_path = "raw/app_data.csv"
