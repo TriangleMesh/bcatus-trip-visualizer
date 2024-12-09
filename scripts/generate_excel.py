@@ -22,22 +22,42 @@ def json_to_excel(json_file_path, excel_file_path):
             purpose_of_travel = trip.get('purpose_of_travel', '')
             mode_of_travel = trip.get('mode_of_travel', '')
             identifier = trip.get('identifier', '')
-            
-            for coordinate in trip.get('coordinates', []):
-                full_date = coordinate[2] if len(coordinate) > 2 else None  # Extract full datetime from coordinates
+            coordinates = trip.get('coordinates', [])
+            if len(coordinates) >= 2:
+                start_entry = coordinates[0] 
+                end_entry = coordinates[-1]
+                start_date_part, start_time, start_weekday = None, None, None
+               # Extract start date, time, and weekday
+                start_date_part, start_time, start_weekday = None, None, None
+                if len(start_entry) > 2:
+                    start_full_date = start_entry[2]  # Timestamp from the first entry
+                    start_full_date = str(start_full_date)
+                    if "T" in start_full_date:
+                        start_date_part, start_time = start_full_date.split('T')
+                        start_weekday = get_weekday(start_date_part)
+                    else:
+                        print(access_code, start_entry)
                 
-                # Split full_date into date and time if it's not None
-                if full_date:
-                    date_part, time_part = full_date.split('T')
-                    weekday = get_weekday(date_part)
-                else:
-                    date_part, time_part, weekday = None, None, None
+                # Extract end date, time, and weekday
+                end_date_part, end_time, end_weekday = None, None, None
+                if len(end_entry) > 2:
+                    end_full_date = end_entry[2]  # Timestamp from the last entry
+                    end_full_date = str(end_full_date)
+                    if "T" in end_full_date:
+                        end_date_part, end_time = end_full_date.split('T')
+                        end_weekday = get_weekday(end_date_part)
+                    else:
+                        print(access_code, end_entry)
+                
                 
                 rows.append({
                     'accessCode': access_code,
-                    'weekday': weekday,
-                    'date': date_part,
-                    'time': time_part,
+                    'start_weekday': start_weekday,
+                    'start_date': start_date_part,
+                    'start_time': start_time,
+                    'end_weekday': end_weekday,
+                    'end_date': end_date_part,
+                    'end_time': end_time,
                     'purpose_of_travel': purpose_of_travel,
                     'mode_of_travel': mode_of_travel,
                     'identifier': identifier
