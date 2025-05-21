@@ -3,9 +3,10 @@ import React from "react";
 interface RouteInfoProps {
   route: any;
   selectedRouteIndex: number | null;
+  setRouteIndex: any;
 }
 
-const RouteInfo: React.FC<RouteInfoProps> = ({ route, selectedRouteIndex }) => {
+const RouteInfo: React.FC<RouteInfoProps> = ({ route, selectedRouteIndex, setRouteIndex  }) => {
   if (selectedRouteIndex === null || !route) {
     return (
       <div className="flex items-center justify-center">
@@ -59,12 +60,20 @@ const RouteInfo: React.FC<RouteInfoProps> = ({ route, selectedRouteIndex }) => {
   const startTime = formatTimestamp(startPoint[2]);
   const endTime = formatTimestamp(endPoint[2]);
   const duration = calculateDuration(startPoint[2], endPoint[2]);
+  const next=route.length>selectedRouteIndex+1?selectedRouteIndex+1:-1
+  const previous=selectedRouteIndex>0?selectedRouteIndex-1:-1
 
   return (
     <div className="space-y-4">
       <h3 className="text-3xl font-semibold tracking-tight mb-4">Route Information</h3>
       <p className="mb-2">
-        <span className="font-semibold">Route Index:</span> {selectedRouteIndex + 1}
+        <span className="font-semibold">Route Index:</span> <button
+          onClick={() => setRouteIndex(previous)}
+          className={`flex-1 text-base font-medium py-2 px-3 rounded-lg bg-gray-200 dark:bg-gray-700`}
+        >prev</button> {selectedRouteIndex + 1} <button
+          onClick={() => setRouteIndex(next)}
+          className={`flex-1 text-base font-medium py-2 px-3 rounded-lg bg-gray-200 dark:bg-gray-700`}
+        >next</button>
       </p>
       <p className="mb-2">
         <span className="font-semibold">Number of Points:</span> {selectedRoute.coordinates.length}
