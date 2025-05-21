@@ -358,5 +358,5 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(
     </Map>
   );
 });
-
+MapComponent.displayName = 'MapComponent';
 export default MapComponent;
