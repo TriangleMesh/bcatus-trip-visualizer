@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Head from "next/head";
-import MapComponent from "./MapComponent";
+import  MapComponent from "./MapComponent";
+import { MapComponentHandle} from "./MapComponent";
 import StatsComponent from "./StatsComponent";
 import RouteInfo from "./RouteInfo";
 import ClusterInfo from "./ClusterInfo"; 
@@ -28,6 +29,12 @@ const Home: React.FC = () => {
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null);
   const [view, setView] = useState<"route" | "statistics" | "clusters">("route" as "route" | "statistics" | "clusters");
   const [clusterRegions, setClusterRegions] = useState<any[]>([]); // New state for clusters
+
+  const mapComponentRef = useRef<MapComponentHandle>(null);
+
+  const setMapdRouteIndex = (routeId:any) => {
+    mapComponentRef.current?.selectRoute(routeId);
+  };
 
   useEffect(() => {
     setIsClient(true);
@@ -83,6 +90,7 @@ const Home: React.FC = () => {
         <section className="w-full md:w-1/2 rounded-lg">
           {isClient && activeRoute && (
             <MapComponent
+              ref={mapComponentRef}
               mapRegion={mapRegion}
               routes={routes}
               activeRoute={activeRoute}
@@ -110,7 +118,11 @@ const Home: React.FC = () => {
           <div className="m-2">
             {view === "route" ? (
               <div className="overflow-y-auto max-h-svh">
-                <RouteInfo route={activeRoute ? routes[activeRoute] : null} selectedRouteIndex={selectedRouteIndex} />
+                <RouteInfo 
+                route={activeRoute ? routes[activeRoute] : null} 
+                selectedRouteIndex={selectedRouteIndex} 
+                setRouteIndex={setMapdRouteIndex}
+                />
               </div>
             ) : view === "statistics" ? (
               <div className="overflow-y-auto max-h-svh">

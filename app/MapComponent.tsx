@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle} from "react";
 import { Annotation, Map, Marker, Polyline, Polygon } from "mapkit-react";
 import {
   FaWalking,
@@ -17,7 +17,10 @@ import {
 import { MdOutlineElectricScooter } from "react-icons/md";
 import { GiHealthNormal } from "react-icons/gi";
 
+
+
 interface MapComponentProps {
+  ref:MapComponentHandle;
   mapRegion: any;
   routes: any;
   activeRoute: string;
@@ -27,6 +30,10 @@ interface MapComponentProps {
   setClusterRegions: (clusters: any[]) => void;
   moveToCluster: (center: { latitude: number; longitude: number }) => void;
 }
+
+export type MapComponentHandle = {
+  selectRoute: (index:any) => void;
+};
 
 type TravelMode =
   | "Auto Driver"
@@ -69,16 +76,28 @@ const getIconForMode = (mode: TravelMode): JSX.Element => {
 
 export { getIconForMode };
 
-const MapComponent: React.FC<MapComponentProps> = ({
-  mapRegion,
-  routes,
-  activeRoute,
-  showClusters,
-  showMarkers,
-  onSelectRoute,
-  setClusterRegions,
-  moveToCluster,
-}) => {
+const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(
+  (
+    {
+      mapRegion,
+      routes,
+      activeRoute,
+      showClusters,
+      showMarkers,
+      onSelectRoute,
+      setClusterRegions,
+      moveToCluster,
+    },
+    ref
+  ) => {
+    useImperativeHandle(ref, () => ({
+      selectRoute(index: any) {
+        console.log('Method called from parent!', index);
+        setSelectedRouteIndex(index);
+        onSelectRoute(index);
+      },
+    }));
+
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
@@ -338,6 +357,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
         ))}
     </Map>
   );
-};
+});
 
 export default MapComponent;
